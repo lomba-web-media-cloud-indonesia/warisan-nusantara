@@ -11,6 +11,9 @@ import {
 } from "framer-motion";
 import { FiArrowRight, FiMapPin } from "react-icons/fi";
 import { useRef, useState, useCallback, useEffect } from "react";
+import BuildWith from "@/components/landing/BuildWith";
+import GetStarted from "@/components/landing/GetStarted";
+import { SiNextdotjs, SiReact, SiTailwindcss, SiFramer, SiTypescript, SiVercel } from "react-icons/si";
 
 interface ShinyTextProps {
   text: string;
@@ -56,7 +59,8 @@ export const SmoothScrollHero = () => {
       >
         {/* <Nav /> */}
         <Hero />
-        <Schedule />
+        <BuildWithSection />
+        <GetStarted />
       </ReactLenis>
     </div>
   );
@@ -198,14 +202,14 @@ const ShinyText = ({
   };
 
   return (
-    <motion.span
-      className={`shiny-text ${className}`}
+    <motion.h1
+      className={`shiny-text ${className} text-extrabold`}
       style={{ ...gradientStyle, backgroundPosition }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {text}
-    </motion.span>
+    </motion.h1>
   );
 };
 
@@ -355,47 +359,32 @@ const ParallaxImg = ({ className, alt, src, start, end, name, role }: ParallaxIm
   );
 };
 
-const Schedule = () => {
+const BuildWithSection = () => {
+  const BuildItems = [
+    { link: "https://nextjs.org", text: "Next.js", logo: <SiNextdotjs /> },
+    { link: "https://react.dev", text: "React", logo: <SiReact /> },
+    { link: "https://tailwindcss.com", text: "Tailwind", logo: <SiTailwindcss /> },
+    { link: "https://www.framer.com/motion/", text: "Framer Motion", logo: <SiFramer /> },
+    { link: "https://www.typescriptlang.org/", text: "TypeScript", logo: <SiTypescript /> },
+    { link: "https://vercel.com", text: "Vercel", logo: <SiVercel /> },
+  ];
+
   return (
-    <section
-      id="launch-schedule"
-      className="mx-auto max-w-5xl px-4 py-48 text-white"
-    >
-      <motion.h1
-        initial={{ y: 48, opacity: 0 }}
-        whileInView={{ y: 0, opacity: 1 }}
-        transition={{ ease: "easeInOut", duration: 0.75 }}
-        className="mb-20 text-4xl font-black uppercase text-zinc-50"
-      >
-        Launch Schedule
-      </motion.h1>
-      <ScheduleItem title="NG-21" date="Dec 9th" location="Florida" />
-      <ScheduleItem title="Starlink" date="Dec 20th" location="Texas" />
-      <ScheduleItem title="Starlink" date="Jan 13th" location="Florida" />
-      <ScheduleItem title="Turksat 6A" date="Feb 22nd" location="Florida" />
-      <ScheduleItem title="NROL-186" date="Mar 1st" location="California" />
-      <ScheduleItem title="GOES-U" date="Mar 8th" location="California" />
-      <ScheduleItem title="ASTRA 1P" date="Apr 8th" location="Texas" />
+    <section className="bg-zinc-950 pt-96">
+      <div className="mx-auto max-w-5xl px-4 mb-20">
+        <motion.h1
+          initial={{ y: 48, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ ease: "easeInOut", duration: 0.75 }}
+          className="text-4xl font-black uppercase text-zinc-50"
+        >
+          Build With
+        </motion.h1>
+      </div>
+      <div className="relative w-full h-screen">
+        <BuildWith items={BuildItems} />
+      </div>
     </section>
   );
 };
 
-const ScheduleItem = ({ title, date, location }: ScheduleItemProps) => {
-  return (
-    <motion.div
-      initial={{ y: 48, opacity: 0 }}
-      whileInView={{ y: 0, opacity: 1 }}
-      transition={{ ease: "easeInOut", duration: 0.75 }}
-      className="mb-9 flex items-center justify-between border-b border-zinc-800 px-3 pb-9"
-    >
-      <div>
-        <p className="mb-1.5 text-xl text-zinc-50">{title}</p>
-        <p className="text-sm uppercase text-zinc-500">{date}</p>
-      </div>
-      <div className="flex items-center gap-1.5 text-end text-sm uppercase text-zinc-500">
-        <p>{location}</p>
-        <FiMapPin />
-      </div>
-    </motion.div>
-  );
-};
