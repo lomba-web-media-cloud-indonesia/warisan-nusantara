@@ -5,8 +5,9 @@
   --foreground: #2b2b2b;
 
   --primary: #7a4a2e;
-  --secondary: #2f6b4f;
+  --secondary: #166534;
   --accent: #d6a756;
+  --text: #71717a;
 
   --card: #ffffff;
   --border: #e5e7eb;
@@ -18,8 +19,9 @@
     --foreground: #f1f1f1;
 
     --primary: #7a4a2e;
-    --secondary: #4fa37c;
+    --secondary: #2f6b4f;
     --accent: #e6c37a;
+    --text: #71717a;
 
     --card: #1c1c1c;
     --border: #2e2e2e;
@@ -33,19 +35,13 @@
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
+  --color-text: var(--text);
 
   --color-card: var(--card);
   --color-border: var(--border);
 
   --font-heading: "Kalnia", serif;
   --font-body: "Poppins", sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ededed;
-    --foreground: #0a0a0a;
-  }
 }
 
 html {
