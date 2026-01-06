@@ -54,7 +54,7 @@ interface ScheduleItemProps {
 
 export const SmoothScrollHero = () => {
   return (
-    <div className="bg-[var(--background)]">
+    <div className="bg-zinc-900">
       <ReactLenis
         root
         options={{
@@ -104,10 +104,13 @@ const Hero = () => {
 
       <div
         className="
-  absolute bottom-0 left-0 right-0 h-96
-  bg-gradient-to-b
-  from-[color-mix(in_oklab,var(--background),transparent_100%)]
-  to-[var(--background)]
+  absolute bottom-0 left-0 right-0 h-[500px]
+  bg-gradient-to-t 
+  from-zinc-900 
+  via-zinc-900/90 
+  via-zinc-900/50 
+  via-zinc-900/20 
+  to-transparent
 "
       />
     </div>
@@ -271,7 +274,7 @@ const ParallaxImages = () => {
   return (
     <div className="mx-auto max-w-5xl px-4 pt-[200px]">
       <ParallaxImg
-        src="/asset/images/ken-jaya.jpg"
+        src="/asset/images/ken.jpeg"
         alt="Ken Jayakusuma"
         start={-200}
         end={200}
@@ -403,13 +406,13 @@ const BuildWithSection = () => {
   ];
 
   return (
-    <section className="bg-[var(--background)] pt-96">
+    <section className="bg-zinc-900 pt-96">
       <div className="mx-auto max-w-5xl px-4 mb-20">
         <motion.h1
           initial={{ y: 48, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ ease: "easeInOut", duration: 0.75 }}
-          className="text-4xl font-black uppercase text-[var(--foreground)]">
+          className="text-4xl font-black uppercase text-[#f9f7f3]">
           Dibuat dengan
         </motion.h1>
       </div>

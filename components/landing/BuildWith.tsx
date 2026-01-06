@@ -29,11 +29,11 @@ interface MenuItemProps extends MenuItemData {
 const BuildWith: React.FC<FlowingMenuProps> = ({
   items = [],
   speed = 15,
-  textColor = "var(--foreground)",
-  bgColor = "var(--background)",
-  marqueeBgColor = "var(--foreground)",
-  marqueeTextColor = "var(--background)",
-  borderColor = "var(--foreground)",
+  textColor = "#f9f7f3",
+  bgColor = "#111827",
+  marqueeBgColor = "#f9f7f3",
+  marqueeTextColor = "#111827",
+  borderColor = "#f9f7f3",
 }) => {
   return (
     <div className="menu-wrap" style={{ backgroundColor: bgColor }}>
@@ -171,7 +171,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
 
   return (
     <div
-      className="menu__item bg-[var(--background)]"
+      className="menu__item bg-zinc-900"
       ref={itemRef}
       style={{ borderColor, borderTop: isFirst ? "none" : undefined }}>
       <a

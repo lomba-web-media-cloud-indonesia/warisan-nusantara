@@ -34,7 +34,7 @@ export default function FooterSection() {
   ];
 
   return (
-    <footer className="bg-[var(--background)] border-t border-zinc-800">
+    <footer className="bg-zinc-900 border-t border-zinc-800">
       <div className="mx-auto max-w-5xl px-4 py-12 md:py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -44,7 +44,7 @@ export default function FooterSection() {
           className="flex flex-col items-center justify-center gap-8">
           {/* Logo / Title */}
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-wider text-[var(--foreground)]">
+            <h1 className="text-3xl md:text-4xl font-black uppercase tracking-wider text-[#f9f7f3]">
               Warisan Nusantara
             </h1>
             <p className="mt-2 text-[var(--text)] text-sm md:text-base">
@@ -63,7 +63,7 @@ export default function FooterSection() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="group relative flex items-center justify-center p-3 sm:p-4 rounded-full bg-[var(--background)] text-[var(--text)] transition-colors hover:text-white hover:bg-zinc-800"
+                  className="group relative flex items-center justify-center p-3 sm:p-4 rounded-full bg-[var(--background)] text-[#1c1c1c] transition-colors hover:text-white hover:bg-zinc-800"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, scale: 0.5 }}
