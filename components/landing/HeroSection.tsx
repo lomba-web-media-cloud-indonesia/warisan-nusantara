@@ -410,7 +410,7 @@ const BuildWithSection = () => {
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ ease: "easeInOut", duration: 0.75 }}
           className="text-4xl font-black uppercase text-[var(--foreground)]">
-          Build With
+          Dibuat dengan
         </motion.h1>
       </div>
       <div className="relative w-full h-screen">
