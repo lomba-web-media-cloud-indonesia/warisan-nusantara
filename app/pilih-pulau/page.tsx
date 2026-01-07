@@ -182,6 +182,7 @@ export default function IslandMapPage() {
     const path = document.querySelector(
       `path[id^="${area}-"]`
     ) as SVGPathElement;
+
     if (path) {
       // Extract SVG path data
       const pathData = path.getAttribute("d");
