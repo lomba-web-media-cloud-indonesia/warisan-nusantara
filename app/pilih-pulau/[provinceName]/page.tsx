@@ -1,165 +1,235 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { FiArrowLeft, FiInfo, FiCompass, FiMap } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import INDONESIA_DATA from "@/data/Data_Indonesia";
-
-interface ProvinceSVGData {
-  name: string;
-  pathData: string;
-  bbox: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
-}
+import { touristSpots } from "@/data/LocTourism";
 
 export default function PulauDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const provinceName = decodeURIComponent(params.provinceName as string);
-  const [svgData, setSvgData] = useState<ProvinceSVGData | null>(null);
 
-  useEffect(() => {
-    // Retrieve SVG data from sessionStorage
-    const storedData = sessionStorage.getItem('selectedProvinceSVG');
-    if (storedData) {
-      try {
-        const parsed = JSON.parse(storedData);
-        setSvgData(parsed);
-      } catch (e) {
-        console.error('Failed to parse SVG data:', e);
-      }
-    }
-  }, []);
+  const [svgContent, setSvgContent] = useState<string | null>(null);
+  const [viewBox, setViewBox] = useState<string>("0 0 500 500");
+  const [hoveredSpot, setHoveredSpot] = useState<string | null>(null);
 
   const provinceData = INDONESIA_DATA[provinceName];
+
+  useEffect(() => {
+    const fileName = provinceData?.svgName || provinceName;
+
+    const tryPaths = [
+      `/asset/pulau/${fileName}.svg`,
+      `/asset/pulau/${fileName.toLowerCase()}.svg`,
+    ];
+
+    const loadSVG = async () => {
+      for (const path of tryPaths) {
+        try {
+          const res = await fetch(path);
+          if (res.ok) {
+            const data = await res.text();
+            const viewBoxMatch = data.match(/viewBox="([^"]+)"/);
+            if (viewBoxMatch) setViewBox(viewBoxMatch[1]);
+
+            const cleanContent = data
+              .replace(/<svg[^>]*>/, "")
+              .replace(/<\/svg>/, "");
+
+            setSvgContent(cleanContent);
+            return;
+          }
+        } catch (err) {
+          console.warn(`Gagal memuat dari ${path}:`, err);
+        }
+      }
+      console.error("Semua percobaan load SVG gagal untuk:", provinceName);
+    };
+
+    loadSVG();
+  }, [provinceName, provinceData]);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-[#020607] text-white flex flex-col relative overflow-hidden"
-    >
-      {/* Background Decor */}
+      className="min-h-screen bg-[#020607] text-white flex flex-col relative overflow-hidden">
+      {/* Background Decoration */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/20 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-cyan-500/20 blur-[150px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
       {/* Header */}
-      <header className="z-10 px-8 py-8 flex justify-between items-center">
-        <Link href="/pilih-pulau" className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
+      <header className="z-20 px-8 py-8 flex justify-between items-center relative">
+        <Link
+          href="/pilih-pulau"
+          className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
           <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-          <span className="uppercase tracking-widest text-xs font-bold">Kembali ke Peta</span>
+          <span className="uppercase tracking-widest text-xs font-bold">
+            Kembali ke Peta
+          </span>
         </Link>
-        <div className="flex gap-6">
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] uppercase tracking-widest text-emerald-500 font-bold">Wilayah Terpilih</span>
-            <h1 className="text-3xl font-black uppercase tracking-tighter">{provinceName}</h1>
-          </div>
+
+        <div className="flex flex-col items-end">
+          <span className="text-[10px] uppercase tracking-widest text-emerald-500 font-bold">
+            Wilayah Terpilih
+          </span>
+          <h1 className="text-3xl font-black uppercase tracking-tighter">
+            {provinceName}
+          </h1>
         </div>
       </header>
 
       <main className="flex-1 flex flex-col md:flex-row items-center justify-center px-8 gap-12 z-10">
-
-        {/* Visual Section - Display Extracted SVG */}
+        {/* Visual Section - SVG Map */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0, rotate: -5 }}
-          animate={{ scale: 1, opacity: 1, rotate: 0 }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          className="flex-1 flex items-center justify-center relative w-full h-[400px] md:h-[600px]"
-        >
-          {svgData ? (
+          className="flex-1 flex items-center justify-center relative w-full h-[400px] md:h-[600px]">
+          {/* Decorative Ring */}
+          <div className="absolute w-[300px] h-[300px] md:w-[600px] md:h-[600px] border border-emerald-500/10 rounded-full pointer-events-none z-0" />
+
+          {svgContent ? (
             <svg
-              viewBox={`${svgData.bbox.x - 10} ${svgData.bbox.y - 10} ${svgData.bbox.width + 20} ${svgData.bbox.height + 20}`}
-              className="w-full h-full drop-shadow-[0_0_30px_rgba(16,185,129,0.4)]"
-            >
-              <motion.path
-                d={svgData.pathData}
+              viewBox={viewBox}
+              className="w-full h-full drop-shadow-[0_0_30px_rgba(16,185,129,0.4)] z-10">
+              {/* Render SVG Province Shape */}
+              <g
+                dangerouslySetInnerHTML={{ __html: svgContent }}
                 fill="#34d399"
                 stroke="#10b981"
-                strokeWidth={2}
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 2, ease: "easeInOut" }}
+                strokeWidth={0.5}
               />
+
+              {/* Gradient Definitions untuk Glow Effect */}
+              <defs>
+                <radialGradient id="spotGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#fbbf24" stopOpacity="1" />
+                  <stop offset="40%" stopColor="#f59e0b" stopOpacity="0.6" />
+                  <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+                </radialGradient>
+                <radialGradient id="spotGlowHover" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#fbbf24" stopOpacity="1" />
+                  <stop offset="30%" stopColor="#f59e0b" stopOpacity="0.8" />
+                  <stop offset="70%" stopColor="#f59e0b" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* Render Tourist Spot Markers */}
+              {touristSpots[provinceName]?.map((spot, index) => (
+                <g
+                  key={index}
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredSpot(spot.name)}
+                  onMouseLeave={() => setHoveredSpot(null)}>
+                  {/* Invisible Hit Area untuk hover yang lebih mudah */}
+                  <circle cx={spot.x} cy={spot.y} r={20} fill="transparent" />
+
+                  {/* Outer Glow Circle */}
+                  <motion.circle
+                    cx={spot.x}
+                    cy={spot.y}
+                    r={hoveredSpot === spot.name ? 18 : 15}
+                    fill={
+                      hoveredSpot === spot.name
+                        ? "url(#spotGlowHover)"
+                        : "url(#spotGlow)"
+                    }
+                    opacity={hoveredSpot === spot.name ? 0.9 : 0.7}
+                    transition={{ duration: 0.3 }}
+                  />
+
+                  {/* Middle Ring */}
+                  <motion.circle
+                    cx={spot.x}
+                    cy={spot.y}
+                    r={hoveredSpot === spot.name ? 8 : 6}
+                    fill="#fbbf24"
+                    opacity={0.8}
+                    transition={{ duration: 0.3 }}
+                  />
+
+                  {/* Inner Core Point */}
+                  <motion.circle
+                    cx={spot.x}
+                    cy={spot.y}
+                    r={hoveredSpot === spot.name ? 4 : 3}
+                    fill="#ffffff"
+                    transition={{ duration: 0.3 }}
+                  />
+
+                  {/* Tooltip Label on Hover */}
+                  {hoveredSpot === spot.name && (
+                    <motion.g
+                      initial={{ opacity: 0, y: 2 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}>
+                      <text
+                        x={spot.x}
+                        y={spot.y - 25}
+                        textAnchor="middle"
+                        fill="#fbbf24"
+                        fontSize="20"
+                        fontWeight="bold"
+                        className="pointer-events-none select-none"
+                        style={{
+                          textShadow: "0 0 8px black, 0 0 4px black",
+                          filter: "drop-shadow(0 0 2px rgba(0,0,0,0.8))",
+                        }}>
+                        {spot.name}
+                      </text>
+                    </motion.g>
+                  )}
+                </g>
+              ))}
             </svg>
           ) : (
-            <div className="text-zinc-500 text-center">
-              <p className="text-sm">Loading SVG...</p>
-            </div>
+            <div className="text-zinc-500 animate-pulse">Memuat Peta...</div>
           )}
-
-          {/* Decorative Ring */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1, duration: 2 }}
-            className="absolute w-[300px] h-[300px] md:w-[600px] md:h-[600px] border border-emerald-500/10 rounded-full"
-          />
         </motion.div>
 
-        {/* Content Section */}
-        <motion.div
-          initial={{ x: 50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="flex-1 max-w-xl space-y-8"
-        >
+        {/* Content Section - Province Info */}
+        <div className="flex-1 max-w-xl space-y-8 z-10">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] uppercase tracking-widest font-bold">
-              <FiCompass className="animate-spin-slow" /> Penjelajahan Budaya
+              <FiCompass /> Penjelajahan Budaya
             </div>
             <h2 className="text-5xl font-black leading-tight">
-              Kilau <span className="text-emerald-500 underline decoration-emerald-500/30 underline-offset-8">Warisan</span> Nusantara di {provinceName}
+              Kilau <span className="text-emerald-500">Warisan</span> Nusantara
+              di {provinceName}
             </h2>
             <p className="text-zinc-400 leading-relaxed text-lg">
-              {provinceData?.tag || `Temukan keindahan tak ternilai dari ${provinceName}, mulai dari arsitektur megah hingga tradisi yang masih terjaga.`}
+              {provinceData?.tag}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <motion.div
-              whileHover={{ scale: 1.02, y: -5 }}
-              className="p-6 bg-zinc-900/50 backdrop-blur-md border border-white/5 rounded-3xl text-left hover:border-emerald-500/30 transition-all group"
-            >
-              <div className="p-3 bg-emerald-500/10 rounded-2xl w-fit text-emerald-500 mb-4 group-hover:scale-110 transition-transform">
+            <div className="p-6 bg-zinc-900/50 backdrop-blur-md border border-white/5 rounded-3xl">
+              <div className="p-3 bg-emerald-500/10 rounded-2xl w-fit text-emerald-500 mb-4">
                 <FiInfo />
               </div>
-              <div className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold mb-1">Destinasi</div>
-              <div className="text-lg font-bold">{provinceData?.tour || "Eksplorasi Destinasi"}</div>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ scale: 1.02, y: -5 }}
-              className="p-6 bg-zinc-900/50 backdrop-blur-md border border-white/5 rounded-3xl text-left hover:border-emerald-500/30 transition-all group"
-            >
-              <div className="p-3 bg-emerald-500/10 rounded-2xl w-fit text-emerald-500 mb-4 group-hover:scale-110 transition-transform">
+              <div className="text-zinc-500 text-[10px] font-bold uppercase mb-1">
+                Destinasi
+              </div>
+              <div className="text-lg font-bold">{provinceData?.tour}</div>
+            </div>
+            <div className="p-6 bg-zinc-900/50 backdrop-blur-md border border-white/5 rounded-3xl">
+              <div className="p-3 bg-emerald-500/10 rounded-2xl w-fit text-emerald-500 mb-4">
                 <FiMap />
               </div>
-              <div className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold mb-1">Budaya</div>
-              <div className="text-lg font-bold">{provinceData?.culture || "Tradisi Lokal"}</div>
-            </motion.div>
+              <div className="text-zinc-500 text-[10px] font-bold uppercase mb-1">
+                Budaya
+              </div>
+              <div className="text-lg font-bold">{provinceData?.culture}</div>
+            </div>
           </div>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full py-5 bg-emerald-500 text-[#020607] font-black uppercase tracking-[0.2em] rounded-2xl shadow-[0_20px_40px_rgba(16,185,129,0.2)] hover:bg-emerald-400 transition-colors"
-          >
-            Mulailah Penjelajahan
-          </motion.button>
-        </motion.div>
-
+        </div>
       </main>
-
-      {/* Ambient Particles */}
-      <div className="absolute bottom-0 left-0 w-full h-[1px] bg-linear-to-r from-transparent via-emerald-500/20 to-transparent" />
     </motion.div>
   );
 }
