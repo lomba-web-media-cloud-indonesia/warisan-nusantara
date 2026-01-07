@@ -8,62 +8,134 @@ import { useEffect, useState } from "react";
 import INDONESIA_DATA from "@/data/Data_Indonesia";
 import { touristSpots } from "@/data/LocTourism";
 
+interface ProvinceSVGData {
+  name: string;
+  pathData: string;
+  bbox: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+}
+
+interface ProvinceInfo {
+  tag?: string;
+  tour?: string;
+  culture?: string;
+  [key: string]: any;
+}
+
 export default function PulauDetailPage() {
   const params = useParams();
   const provinceName = decodeURIComponent(params.provinceName as string);
 
-  const [svgContent, setSvgContent] = useState<string | null>(null);
-  const [viewBox, setViewBox] = useState<string>("0 0 500 500");
+  const [svgData, setSvgData] = useState<ProvinceSVGData | null>(null);
   const [hoveredSpot, setHoveredSpot] = useState<string | null>(null);
 
-  const provinceData = INDONESIA_DATA[provinceName];
+  const provinceData = (INDONESIA_DATA as Record<string, ProvinceInfo>)[
+    provinceName
+  ];
 
   useEffect(() => {
-    const fileName = provinceData?.svgName || provinceName;
-
-    const tryPaths = [
-      `/asset/pulau/${fileName}.svg`,
-      `/asset/pulau/${fileName.toLowerCase()}.svg`,
+    // 1. Daftar Provinsi yang WAJIB ambil dari public/asset/pulau
+    const specialProvinces = [
+      "Nusa Tenggara Timur",
+      "Nusa Tenggara Barat",
+      "Sulawesi Tenggara",
+      "Kepulauan Riau",
+      "Bali",
+      "Jakarta",
     ];
 
-    const loadSVG = async () => {
-      for (const path of tryPaths) {
-        try {
-          const res = await fetch(path);
-          if (res.ok) {
-            const data = await res.text();
-            const viewBoxMatch = data.match(/viewBox="([^"]+)"/);
-            if (viewBoxMatch) setViewBox(viewBoxMatch[1]);
+    const isSpecial = specialProvinces.some((p) =>
+      provinceName.toLowerCase().includes(p.toLowerCase())
+    );
 
-            const cleanContent = data
-              .replace(/<svg[^>]*>/, "")
-              .replace(/<\/svg>/, "");
+    const loadSpecialSVG = async () => {
+      try {
+        let fileName = provinceName;
+        if (provinceName === "Jakarta Raya") fileName = "Jakarta";
+        else if (provinceName === "Nusa Tenggara Barat") fileName = "NTB";
+        else if (provinceName === "Nusa Tenggara Timur") fileName = "NTT";
+        else if (provinceName === "Sulawesi Tenggara") fileName = "s-tenggara";
+        else if (provinceName === "Kepulauan Riau") fileName = "kep_riau";
+        else if (provinceName === "Bali") fileName = "Bali";
+        console.log("Load:", `/asset/pulau/${fileName}.svg`);
 
-            setSvgContent(cleanContent);
-            return;
+        const res = await fetch(`/asset/pulau/${fileName}.svg`);
+        if (res.ok) {
+          const svgText = await res.text();
+
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(svgText, "image/svg+xml");
+
+          const svgElement = doc.querySelector("svg");
+          if (!svgElement) throw new Error("No SVG element found");
+
+          // Extract viewBox
+          const viewBoxAttr = svgElement.getAttribute("viewBox");
+          const vbValues = viewBoxAttr
+            ? viewBoxAttr.split(" ").map(Number)
+            : [0, 0, 500, 500];
+
+          // Extract ALL paths (for archipelagos)
+          const paths = Array.from(doc.querySelectorAll("path"));
+          const combinedPathData = paths
+            .map((p) => p.getAttribute("d"))
+            .filter(Boolean)
+            .join(" ");
+
+          if (combinedPathData) {
+            setSvgData({
+              name: provinceName,
+              pathData: combinedPathData,
+              bbox: {
+                x: vbValues[0],
+                y: vbValues[1],
+                width: vbValues[2],
+                height: vbValues[3],
+              },
+            });
           }
-        } catch (err) {
-          console.warn(`Gagal memuat dari ${path}:`, err);
+        } else {
+          console.error("Failed to fetch SVG:", res.status, res.statusText);
         }
+      } catch (err) {
+        console.error("Gagal load special SVG:", err);
       }
-      console.error("Semua percobaan load SVG gagal untuk:", provinceName);
     };
 
-    loadSVG();
-  }, [provinceName, provinceData]);
+    // 2. LOGIKA HYBRID
+    if (isSpecial) {
+      console.log("Mode: Fetch dari Public Asset");
+      loadSpecialSVG();
+    } else {
+      console.log("Mode: Ambil dari Session Storage");
+      const storedData = sessionStorage.getItem("selectedProvinceSVG");
+      if (storedData) {
+        try {
+          const parsed: ProvinceSVGData = JSON.parse(storedData);
+          setSvgData(parsed);
+        } catch (e) {
+          console.error("Error parsing storage:", e);
+        }
+      }
+    }
+  }, [provinceName]);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="min-h-screen bg-[#020607] text-white flex flex-col relative overflow-hidden">
-      {/* Background Decoration */}
+      {/* Background Decor */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/20 blur-[120px] rounded-full animate-pulse" />
       </div>
 
       {/* Header */}
-      <header className="z-20 px-8 py-8 flex justify-between items-center relative">
+      <header className="z-10 px-8 py-8 flex justify-between items-center">
         <Link
           href="/pilih-pulau"
           className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
@@ -72,7 +144,6 @@ export default function PulauDetailPage() {
             Kembali ke Peta
           </span>
         </Link>
-
         <div className="flex flex-col items-end">
           <span className="text-[10px] uppercase tracking-widest text-emerald-500 font-bold">
             Wilayah Terpilih
@@ -83,111 +154,110 @@ export default function PulauDetailPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center px-8 z-10">
-        {/* Visual Section - SVG Map */}
+      <main className="flex-1 flex flex-col md:flex-row items-center justify-center px-8 gap-12 z-10">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="flex-1 flex items-center justify-center relative w-full h-[600px] md:h-[800px] max-w-5xl">
-          {/* Decorative Ring */}
-          <div className="absolute w-[300px] h-[300px] md:w-[600px] md:h-[600px] border border-emerald-500/10 rounded-full pointer-events-none z-0" />
+          className="flex-1 flex items-center justify-center relative w-full h-[400px] md:h-[600px]">
+          <div className="absolute w-[300px] h-[300px] md:w-[600px] md:h-[600px] border border-emerald-500/10 rounded-full" />
 
-          {svgContent ? (
+          {svgData ? (
             <svg
-              viewBox={viewBox}
-              className="w-full h-full drop-shadow-[0_0_30px_rgba(16,185,129,0.4)] z-10">
-              {/* Render SVG Province Shape */}
-              <g
-                dangerouslySetInnerHTML={{ __html: svgContent }}
+              viewBox={`${svgData.bbox.x} ${svgData.bbox.y} ${svgData.bbox.width} ${svgData.bbox.height}`}
+              className="w-full h-full drop-shadow-[0_0_30px_rgba(16,185,129,0.4)]"
+              preserveAspectRatio="xMidYMid meet">
+              <motion.path
+                d={svgData.pathData}
+                fill="#34d399"
+                stroke="#10b981"
+                strokeWidth={svgData.bbox.width / 200}
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.5 }}
               />
 
-              {/* Gradient Definitions untuk Glow Effect */}
-              <defs>
-                <radialGradient id="spotGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#fbbf24" stopOpacity="1" />
-                  <stop offset="40%" stopColor="#f59e0b" stopOpacity="0.6" />
-                  <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
-                </radialGradient>
-                <radialGradient id="spotGlowHover" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#fbbf24" stopOpacity="1" />
-                  <stop offset="30%" stopColor="#f59e0b" stopOpacity="0.8" />
-                  <stop offset="70%" stopColor="#f59e0b" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Render Tourist Spot Markers */}
+              {/* Tourist Spots */}
               {touristSpots[provinceName]?.map((spot, index) => (
                 <g
                   key={index}
                   className="cursor-pointer"
                   onMouseEnter={() => setHoveredSpot(spot.name)}
                   onMouseLeave={() => setHoveredSpot(null)}>
-                  {/* Invisible Hit Area untuk hover yang lebih mudah */}
-                  <circle cx={spot.x} cy={spot.y} r={20} fill="transparent" />
-
-                  {/* Outer Glow Circle */}
-                  <motion.circle
+                  <circle
                     cx={spot.x}
                     cy={spot.y}
-                    r={hoveredSpot === spot.name ? 18 : 15}
-                    fill={
-                      hoveredSpot === spot.name
-                        ? "url(#spotGlowHover)"
-                        : "url(#spotGlow)"
-                    }
-                    opacity={hoveredSpot === spot.name ? 0.9 : 0.7}
-                    transition={{ duration: 0.3 }}
+                    r={svgData.bbox.width / 50}
+                    fill="transparent"
                   />
-
-                  {/* Middle Ring */}
                   <motion.circle
                     cx={spot.x}
                     cy={spot.y}
-                    r={hoveredSpot === spot.name ? 8 : 6}
+                    r={svgData.bbox.width / 100}
                     fill="#fbbf24"
-                    opacity={0.8}
-                    transition={{ duration: 0.3 }}
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
                   />
-
-                  {/* Inner Core Point */}
-                  <motion.circle
-                    cx={spot.x}
-                    cy={spot.y}
-                    r={hoveredSpot === spot.name ? 4 : 3}
-                    fill="#ffffff"
-                    transition={{ duration: 0.3 }}
-                  />
-
-                  {/* Tooltip Label on Hover */}
                   {hoveredSpot === spot.name && (
-                    <motion.g
-                      initial={{ opacity: 0, y: 2 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2 }}>
-                      <text
-                        x={spot.x}
-                        y={spot.y - 25}
-                        textAnchor="middle"
-                        fill="#fbbf24"
-                        fontSize="20"
-                        fontWeight="bold"
-                        className="pointer-events-none select-none"
-                        style={{
-                          textShadow: "0 0 8px black, 0 0 4px black",
-                          filter: "drop-shadow(0 0 2px rgba(0,0,0,0.8))",
-                        }}>
-                        {spot.name}
-                      </text>
-                    </motion.g>
+                    <text
+                      x={spot.x}
+                      y={spot.y - svgData.bbox.height / 20}
+                      textAnchor="middle"
+                      fill="#fbbf24"
+                      fontWeight="bold"
+                      fontSize={svgData.bbox.width / 30}
+                      style={{ textShadow: "2px 2px 4px black" }}>
+                      {spot.name}
+                    </text>
                   )}
                 </g>
               ))}
             </svg>
           ) : (
-            <div className="text-zinc-500 animate-pulse">Memuat Peta...</div>
+            <div className="text-zinc-500 animate-pulse">
+              Memuat Peta {provinceName}...
+            </div>
           )}
+        </motion.div>
+
+        {/* Content Section */}
+        <motion.div
+          initial={{ x: 50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className="flex-1 max-w-xl space-y-8">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] font-bold tracking-widest">
+              <FiCompass /> PENJELAJAHAN BUDAYA
+            </div>
+            <h2 className="text-5xl font-black leading-tight uppercase">
+              Kilau <span className="text-emerald-500">Warisan</span> Nusantara
+              di {provinceName}
+            </h2>
+            <p className="text-zinc-400 text-lg">
+              {provinceData?.tag ||
+                "Temukan pesona alam dan tradisi luhur yang dijaga turun-temurun."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-6 bg-zinc-900/50 border border-white/5 rounded-3xl">
+              <FiInfo className="text-emerald-500 mb-4" />
+              <div className="text-zinc-500 text-[10px] font-bold uppercase mb-1">
+                Destinasi
+              </div>
+              <div className="text-lg font-bold">
+                {provinceData?.tour || "Wisata Alam"}
+              </div>
+            </div>
+            <div className="p-6 bg-zinc-900/50 border border-white/5 rounded-3xl">
+              <FiMap className="text-emerald-500 mb-4" />
+              <div className="text-zinc-500 text-[10px] font-bold uppercase mb-1">
+                Budaya
+              </div>
+              <div className="text-lg font-bold">
+                {provinceData?.culture || "Tradisi Lokal"}
+              </div>
+            </div>
+          </div>
         </motion.div>
       </main>
     </motion.div>

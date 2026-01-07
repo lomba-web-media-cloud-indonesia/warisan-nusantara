@@ -66,7 +66,6 @@ export const touristSpots: TouristData = {
     { name: "Danau Kaolin", x: 208, y: 165 },
   ],
 
-  // JAWA
   Banten: [
     { name: "Ujung Kulon", x: 176, y: 238 },
     { name: "Tanjung Lesung", x: 179, y: 240 },
@@ -108,14 +107,10 @@ export const touristSpots: TouristData = {
 
   // BALI & NUSA TENGGARA
   Bali: [
-    { name: "Tanah Lot", x: 335.5, y: 269.5 },
-    { name: "Uluwatu", x: 342.7, y: 278.6 },
-    { name: "Kuta", x: 340.5, y: 273.5 },
+    { name: "Uluwatu", x: 665.5, y: 615.5 },
+    { name: "Tanah Lot", x: 502.7, y: 278.6 },
     { name: "Ubud", x: 345.5, y: 270.0 },
-    { name: "Kintamani", x: 348.5, y: 267.5 },
-    { name: "Nusa Penida", x: 346.0, y: 281.5 },
-    { name: "Tegalalang", x: 346.0, y: 269.0 },
-    { name: "Besakih", x: 350.0, y: 270.5 },
+    { name: "Besakih", x: 1120.0, y: 260.5 },
   ],
   "Nusa Tenggara Barat": [
     { name: "Gunung Rinjani", x: 380, y: 273 },
