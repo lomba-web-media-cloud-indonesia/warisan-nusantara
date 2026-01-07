@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
+import { touristSpots } from "@/data/LocTourism";
 
 export async function POST(req: Request) {
   try {
     const { message } = await req.json();
+
+    // Flatten tourist spots for system prompt
+    const allowedTopics = Object.values(touristSpots)
+      .flat()
+      .map((s) => s.name)
+      .join(", ");
 
     console.log("Sending request to OpenRouter...");
     const response = await fetch(
@@ -10,7 +17,7 @@ export async function POST(req: Request) {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer sk-or-v1-28ddd957f57ee73c5fac0fc260b533b1c443b544bfa97dbf6691d03e12dce6ddsk-or-v1-28ddd957f57ee73c5fac0fc260b533b1c443b544bfa97dbf6691d03e12dce6dd`,
+          Authorization: `Bearer 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`,
           "Content-Type": "application/json",
           "HTTP-Referer": "http://localhost:3000", // Required by OpenRouter for free tier sometimes
           "X-Title": "Warisan Nusantara",
@@ -20,8 +27,7 @@ export async function POST(req: Request) {
           messages: [
             {
               role: "system",
-              content:
-                "Kamu adalah asisten virtual yang HANYA menjawab pertanyaan seputar tempat wisata, budaya, dan sejarah di Indonesia. Jika pengguna bertanya tentang hal lain (seperti coding, politik, matematika umum yang tidak relevan), tolah dengan sopan dan katakan bahwa kamu hanya bisa membahas warisan nusantara. Jawab dengan ringkas, ramah, dan informatif.",
+              content: `Kamu adalah asisten virtual untuk aplikasi \"Warisan Nusantara\". Tugasmu adalah menjelaskan tentang tempat-tempat wisata berikut ini di Indonesia: ${allowedTopics}. \n\nInstruksi:\n1. Jawab pertanyaan pengguna dengan ramah, ringkas, dan informatif.\n2. HANYA bahas topik seputar pariwisata, budaya, dan sejarah Indonesia, terutama yang ada dalam daftar di atas.\n3. Jika pengguna bertanya hal di luar konteks (coding, math, politik, dll), tolak dengan sopan.\n4. Gunakan Bahasa Indonesia yang baik dan menarik.`,
             },
             {
               role: "user",

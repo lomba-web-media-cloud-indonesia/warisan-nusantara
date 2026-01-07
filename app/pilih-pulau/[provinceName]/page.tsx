@@ -7,6 +7,7 @@ import { FiArrowLeft, FiInfo, FiCompass, FiMap } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import INDONESIA_DATA from "@/data/Data_Indonesia";
 import { touristSpots } from "@/data/LocTourism";
+import { useChat } from "@/context/ChatContext";
 
 interface ProvinceSVGData {
   name: string;
@@ -29,6 +30,7 @@ interface ProvinceInfo {
 export default function PulauDetailPage() {
   const params = useParams();
   const provinceName = decodeURIComponent(params.provinceName as string);
+  const { openChat } = useChat();
 
   const [svgData, setSvgData] = useState<ProvinceSVGData | null>(null);
   const [hoveredSpot, setHoveredSpot] = useState<string | null>(null);
@@ -181,6 +183,7 @@ export default function PulauDetailPage() {
                 <g
                   key={index}
                   className="cursor-pointer"
+                  onClick={() => openChat(`Ceritakan secara singkat tentang keunikan dan daya tarik wisata ${spot.name} di ${provinceName}!`)}
                   onMouseEnter={() => setHoveredSpot(spot.name)}
                   onMouseLeave={() => setHoveredSpot(null)}>
                   <circle
@@ -200,11 +203,15 @@ export default function PulauDetailPage() {
                   {hoveredSpot === spot.name && (
                     <text
                       x={spot.x}
-                      y={spot.y - svgData.bbox.height / 20}
+                      y={
+                        spot.y - svgData.bbox.y < svgData.bbox.height * 0.15
+                          ? spot.y + svgData.bbox.height / 15
+                          : spot.y - svgData.bbox.height / 20
+                      }
                       textAnchor="middle"
                       fill="#fbbf24"
                       fontWeight="bold"
-                      fontSize={svgData.bbox.width / 30}
+                      fontSize={svgData.bbox.width / 50}
                       style={{ textShadow: "2px 2px 4px black" }}>
                       {spot.name}
                     </text>

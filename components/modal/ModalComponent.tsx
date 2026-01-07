@@ -1,6 +1,7 @@
 "use client"
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
+import { useChat } from "@/context/ChatContext";
 
 type Message = {
     role: 'user' | 'assistant';
@@ -8,7 +9,7 @@ type Message = {
 };
 
 export default function ModalComponent() {
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, openChat, closeChat, initialMessage, clearInitialMessage } = useChat();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -22,11 +23,18 @@ export default function ModalComponent() {
         scrollToBottom();
     }, [messages, isOpen]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!input.trim() || isLoading) return;
+    // Handle initial message from Context (e.g. from Map click)
+    useEffect(() => {
+        if (isOpen && initialMessage) {
+            handleSendMessage(initialMessage);
+            clearInitialMessage();
+        }
+    }, [isOpen, initialMessage]);
 
-        const userMessage = input.trim();
+    const handleSendMessage = async (text: string) => {
+        if (!text.trim() || isLoading) return;
+
+        const userMessage = text.trim();
         setInput("");
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
         setIsLoading(true);
@@ -54,12 +62,17 @@ export default function ModalComponent() {
         }
     };
 
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSendMessage(input);
+    };
+
     return (
         <>
             {/* Toggle Button (Floating Action Button) */}
             {!isOpen && (
                 <button
-                    onClick={() => setIsOpen(true)}
+                    onClick={() => openChat()}
                     className="fixed bottom-8 right-8 z-50 bg-[#2F6B4F] hover:bg-[#24523b] text-[#C6A664] p-4 rounded-full shadow-lg transition-all transform hover:scale-105 border-2 border-[#C6A664]"
                 >
                     <div className="flex items-center gap-2">
@@ -76,14 +89,14 @@ export default function ModalComponent() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
 
                     {/* Close Area (Click outside) */}
-                    <div className="absolute inset-0" onClick={() => setIsOpen(false)}></div>
+                    <div className="absolute inset-0" onClick={closeChat}></div>
 
                     {/* Main Modal Wrapper */}
                     <div className="relative w-full max-w-[350px] h-[65vh] min-h-[480px] max-h-[600px] mt-20 transition-all">
 
                         {/* Close Button X */}
                         <button
-                            onClick={() => setIsOpen(false)}
+                            onClick={closeChat}
                             className="absolute -top-[100px] right-0 z-50 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 backdrop-blur-md transition-colors"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -92,7 +105,7 @@ export default function ModalComponent() {
                         </button>
 
                         {/* Header Image */}
-                        <div className="absolute -top-[90px] left-1/2 -translate-x-1/2 z-20 w-[120%] h-auto pointer-events-none flex justify-center">
+                        <div className="absolute -top-[120px] left-1/2 -translate-x-1/2 z-20 w-[120%] h-auto pointer-events-none flex justify-center">
                             <Image
                                 src="/asset/images/HeaderModal.png"
                                 alt="Header Modal"
@@ -122,8 +135,8 @@ export default function ModalComponent() {
                                     <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                         <div
                                             className={`max-w-[85%] rounded-2xl p-3 text-sm ${msg.role === 'user'
-                                                    ? 'bg-[#C6A664] text-white rounded-br-none'
-                                                    : 'bg-white/90 text-[#2F6B4F] rounded-bl-none shadow-md'
+                                                ? 'bg-[#C6A664] text-white rounded-br-none'
+                                                : 'bg-white/90 text-[#2F6B4F] rounded-bl-none shadow-md'
                                                 }`}
                                         >
                                             {msg.content}

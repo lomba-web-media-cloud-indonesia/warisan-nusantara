@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   description: "Eksplorasi budaya dan wisata Indonesia melalui peta interaktif dan chatbot edukatif.",
 };
 
+import { ChatProvider } from "@/context/ChatContext";
+import ModalComponent from "@/components/modal/ModalComponent";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +32,10 @@ export default function RootLayout({
       <body
         className={`${kalnia.variable} ${poppins.variable} antialiased`}
       >
-        {children}
+        <ChatProvider>
+          {children}
+          <ModalComponent />
+        </ChatProvider>
       </body>
     </html>
   );
