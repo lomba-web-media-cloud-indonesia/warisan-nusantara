@@ -83,13 +83,13 @@ export default function PulauDetailPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col md:flex-row items-center justify-center px-8 gap-12 z-10">
+      <main className="flex-1 flex flex-col items-center justify-center px-8 z-10">
         {/* Visual Section - SVG Map */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          className="flex-1 flex items-center justify-center relative w-full h-[400px] md:h-[600px]">
+          className="flex-1 flex items-center justify-center relative w-full h-[600px] md:h-[800px] max-w-5xl">
           {/* Decorative Ring */}
           <div className="absolute w-[300px] h-[300px] md:w-[600px] md:h-[600px] border border-emerald-500/10 rounded-full pointer-events-none z-0" />
 
@@ -100,9 +100,6 @@ export default function PulauDetailPage() {
               {/* Render SVG Province Shape */}
               <g
                 dangerouslySetInnerHTML={{ __html: svgContent }}
-                fill="#34d399"
-                stroke="#10b981"
-                strokeWidth={0.5}
               />
 
               {/* Gradient Definitions untuk Glow Effect */}
@@ -192,43 +189,6 @@ export default function PulauDetailPage() {
             <div className="text-zinc-500 animate-pulse">Memuat Peta...</div>
           )}
         </motion.div>
-
-        {/* Content Section - Province Info */}
-        <div className="flex-1 max-w-xl space-y-8 z-10">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] uppercase tracking-widest font-bold">
-              <FiCompass /> Penjelajahan Budaya
-            </div>
-            <h2 className="text-5xl font-black leading-tight">
-              Kilau <span className="text-emerald-500">Warisan</span> Nusantara
-              di {provinceName}
-            </h2>
-            <p className="text-zinc-400 leading-relaxed text-lg">
-              {provinceData?.tag}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-6 bg-zinc-900/50 backdrop-blur-md border border-white/5 rounded-3xl">
-              <div className="p-3 bg-emerald-500/10 rounded-2xl w-fit text-emerald-500 mb-4">
-                <FiInfo />
-              </div>
-              <div className="text-zinc-500 text-[10px] font-bold uppercase mb-1">
-                Destinasi
-              </div>
-              <div className="text-lg font-bold">{provinceData?.tour}</div>
-            </div>
-            <div className="p-6 bg-zinc-900/50 backdrop-blur-md border border-white/5 rounded-3xl">
-              <div className="p-3 bg-emerald-500/10 rounded-2xl w-fit text-emerald-500 mb-4">
-                <FiMap />
-              </div>
-              <div className="text-zinc-500 text-[10px] font-bold uppercase mb-1">
-                Budaya
-              </div>
-              <div className="text-lg font-bold">{provinceData?.culture}</div>
-            </div>
-          </div>
-        </div>
       </main>
     </motion.div>
   );
