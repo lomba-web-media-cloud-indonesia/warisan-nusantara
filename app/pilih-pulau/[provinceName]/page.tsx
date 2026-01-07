@@ -218,47 +218,6 @@ export default function PulauDetailPage() {
             </div>
           )}
         </motion.div>
-
-        {/* Content Section */}
-        <motion.div
-          initial={{ x: 50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          className="flex-1 max-w-xl space-y-8">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] font-bold tracking-widest">
-              <FiCompass /> PENJELAJAHAN BUDAYA
-            </div>
-            <h2 className="text-5xl font-black leading-tight uppercase">
-              Kilau <span className="text-emerald-500">Warisan</span> Nusantara
-              di {provinceName}
-            </h2>
-            <p className="text-zinc-400 text-lg">
-              {provinceData?.tag ||
-                "Temukan pesona alam dan tradisi luhur yang dijaga turun-temurun."}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-6 bg-zinc-900/50 border border-white/5 rounded-3xl">
-              <FiInfo className="text-emerald-500 mb-4" />
-              <div className="text-zinc-500 text-[10px] font-bold uppercase mb-1">
-                Destinasi
-              </div>
-              <div className="text-lg font-bold">
-                {provinceData?.tour || "Wisata Alam"}
-              </div>
-            </div>
-            <div className="p-6 bg-zinc-900/50 border border-white/5 rounded-3xl">
-              <FiMap className="text-emerald-500 mb-4" />
-              <div className="text-zinc-500 text-[10px] font-bold uppercase mb-1">
-                Budaya
-              </div>
-              <div className="text-lg font-bold">
-                {provinceData?.culture || "Tradisi Lokal"}
-              </div>
-            </div>
-          </div>
-        </motion.div>
       </main>
     </motion.div>
   );

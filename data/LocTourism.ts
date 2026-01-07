@@ -108,8 +108,8 @@ export const touristSpots: TouristData = {
   // BALI & NUSA TENGGARA
   Bali: [
     { name: "Uluwatu", x: 665.5, y: 615.5 },
-    { name: "Tanah Lot", x: 502.7, y: 278.6 },
-    { name: "Ubud", x: 345.5, y: 270.0 },
+    { name: "Tanah Lot", x: 672.7, y: 458.6 },
+    { name: "Ubud", x: 925.5, y: 330.0 },
     { name: "Besakih", x: 1120.0, y: 260.5 },
   ],
   "Nusa Tenggara Barat": [
