@@ -9,7 +9,6 @@ import IndonesiaMap from "@react-map/indonesia";
 import INDONESIA_DATA from "@/data/Data_Indonesia";
 import { useTransition } from "@/context/TransitionContext";
 
-// --- 1. Komponen Tooltip Terpisah (TSX) ---
 const FloatingTooltip = ({
   hoveredProvince,
   mousePos,
@@ -20,25 +19,39 @@ const FloatingTooltip = ({
   isTransitioning: boolean;
 }) => {
   const tooltipRef = useRef<HTMLDivElement>(null);
-  const [offset, setOffset] = useState({ x: 20, y: 20 });
+  const [dims, setDims] = useState({ w: 0, h: 0 });
+  const [windowDims, setWindowDims] = useState(() => ({
+    w: typeof window !== "undefined" ? window.innerWidth : 1920,
+    h: typeof window !== "undefined" ? window.innerHeight : 1080,
+  }));
 
+  // Re-calculate window dimensions only on resize
   useEffect(() => {
-    if (tooltipRef.current) {
-      const { clientWidth, clientHeight } = tooltipRef.current;
-      const screenWidth = window.innerWidth;
-      const screenHeight = window.innerHeight;
+    const handleResize = () => {
+      setWindowDims({ w: window.innerWidth, h: window.innerHeight });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-      // Logika anti-terpotong (Smart Positioning)
-      const x =
-        mousePos.x + clientWidth + 40 > screenWidth ? -(clientWidth + 20) : 20;
-      const y =
-        mousePos.y + clientHeight + 40 > screenHeight
-          ? -(clientHeight + 20)
-          : 20;
+  // Use ResizeObserver for tooltip dimensions - this is asynchronous and avoids cascading render warnings
+  useEffect(() => {
+    if (!tooltipRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      if (entries[0]) {
+        setDims({
+          w: entries[0].target.clientWidth,
+          h: entries[0].target.clientHeight,
+        });
+      }
+    });
+    observer.observe(tooltipRef.current);
+    return () => observer.disconnect();
+  }, [hoveredProvince]);
 
-      setOffset({ x, y });
-    }
-  }, [mousePos, hoveredProvince]);
+  // Derived values for positioning
+  const offsetX = mousePos.x + dims.w + 40 > windowDims.w ? -(dims.w + 20) : 20;
+  const offsetY = mousePos.y + dims.h + 40 > windowDims.h ? -(dims.h + 20) : 20;
 
   return (
     <AnimatePresence>
@@ -50,8 +63,8 @@ const FloatingTooltip = ({
           animate={{
             opacity: 1,
             scale: 1,
-            x: mousePos.x + offset.x,
-            y: mousePos.y + offset.y,
+            x: mousePos.x + offsetX,
+            y: mousePos.y + offsetY,
           }}
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{
@@ -82,10 +95,10 @@ const FloatingTooltip = ({
                       "Eksplorasi Keindahan"}
                   </p>
                   <p className="text-[11px] text-emerald-400/90 italic mt-1 leading-snug">
-                    "
+                    &quot;
                     {INDONESIA_DATA[hoveredProvince]?.tag ||
                       "Kekayaan Nusantara yang tiada tara."}
-                    "
+                    &quot;
                   </p>
                 </div>
                 <div className="flex">
@@ -103,51 +116,42 @@ const FloatingTooltip = ({
   );
 };
 
-// --- 2. Komponen Cloud Overlay ---
-const CloudOverlay = ({ isVisible }: { isVisible: boolean }) => (
-  <AnimatePresence>
-    {isVisible && (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] pointer-events-none overflow-hidden">
-        {[...Array(12)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{
-              x: i % 2 === 0 ? "-120%" : "120%",
-              y: `${Math.random() * 100}%`,
-              scale: 2 + Math.random() * 3,
-              opacity: 0,
-            }}
-            animate={{
-              x: i % 2 === 0 ? "120%" : "-120%",
-              opacity: [0, 0.8, 0.8, 0],
-            }}
-            transition={{ duration: 2.5, ease: "easeInOut", delay: i * 0.1 }}
-            className="absolute w-[400px] h-[300px] bg-white/20 blur-[100px] rounded-full"
-          />
-        ))}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="absolute inset-0 bg-white/10 backdrop-blur-sm"
-        />
-      </motion.div>
-    )}
-  </AnimatePresence>
-);
-
 // --- 3. Komponen Utama ---
 export default function IslandMapPage() {
   const router = useRouter();
   const { triggerTransition } = useTransition();
-  // ...
+  // State implementation
+  const [hoveredProvince, setHoveredProvince] = useState<string>("");
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [zoomState, setZoomState] = useState({ scale: 1, x: 0, y: 0 });
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleProvinceClick = (area: string) => {
-    if (isTransitioning) return;
+  // Track mouse position for tooltip
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+
+      if (isTransitioning) return;
+
+      // Identify province from SVG path under cursor
+      const target = e.target as Element;
+      if (target && target.tagName === "path") {
+        const id = target.id;
+        if (id && id.includes("-")) {
+          const province = id.split("-")[0];
+          setHoveredProvince(province);
+        }
+      } else {
+        setHoveredProvince("");
+      }
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [isTransitioning]);
+
+  const handleProvinceClick = (area: string | null) => {
+    if (isTransitioning || !area) return;
     setIsTransitioning(true);
     const path = document.querySelector(
       `path[id^="${area}-"]`
@@ -189,7 +193,7 @@ export default function IslandMapPage() {
 
     // Use triggerTransition instead of router.push with delay
     // Note: local setIsTransitioning controls zoom, triggerTransition controls clouds.
-    // We can sync them or just fire triggerTransition. 
+    // We can sync them or just fire triggerTransition.
     // Since triggerTransition takes 1.5s to close clouds, we can fire it nearby.
 
     setTimeout(() => {
@@ -199,8 +203,6 @@ export default function IslandMapPage() {
 
   return (
     <motion.div className="min-h-screen bg-linear-to-br from-[#020607] via-[#051114] to-[#0a1f28] flex flex-col relative overflow-hidden">
-      <CloudOverlay isVisible={isTransitioning} />
-
       {/* Tooltip dipanggil di sini */}
       <FloatingTooltip
         hoveredProvince={hoveredProvince}

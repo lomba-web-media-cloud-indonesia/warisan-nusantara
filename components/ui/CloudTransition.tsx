@@ -7,110 +7,87 @@ import { useEffect, useState } from "react";
 
 // Helper to generate image paths
 // Helper to generate image paths - User requested ONLY image 42.png
-const leftClouds = Array(24).fill("image 42.png");
-const rightClouds = Array(24).fill("image 42.png");
 
 export default function CloudTransition() {
-    const { isTransitioning } = useTransition();
-    const [isVisible, setIsVisible] = useState(false);
+  const { isTransitioning } = useTransition();
+  const [isVisible, setIsVisible] = useState(false);
+  const [clouds, setClouds] = useState<
+    {
+      id: number;
+      src: string;
+      top: string;
+      left: string;
+      scale: number;
+      duration: number;
+      delay: number;
+      initialX: string;
+    }[]
+  >([]);
 
-    // Keep the component mounted locally during the transition
-    useEffect(() => {
-        if (isTransitioning) {
-            setIsVisible(true);
-        } else {
-            // slight delay to allow exit animation to finish before unmounting/hiding if needed
-            const timer = setTimeout(() => setIsVisible(false), 2000);
-            return () => clearTimeout(timer);
-        }
-    }, [isTransitioning]);
+  useEffect(() => {
+    if (isTransitioning) {
+      // Wrap in setTimeout to avoid synchronous state update in effect (cascading renders)
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+        setClouds(
+          [...Array(50)].map((_, i) => {
+            const isLeft = i % 2 === 0;
+            return {
+              id: i,
+              src: "/asset/images/pagetransition/image 42.png",
+              top: `${Math.random() * 160 - 30}%`,
+              left: isLeft
+                ? `${Math.random() * 90 - 20}%`
+                : `${Math.random() * 90 + 20}%`,
+              scale: 2 + Math.random() * 2.5,
+              duration: 0.8 + Math.random() * 0.4,
+              delay: Math.random() * 0.15,
+              initialX: isLeft ? "-100vw" : "100vw",
+            };
+          })
+        );
+      }, 0);
+      return () => clearTimeout(timer);
+    } else {
+      const timer = setTimeout(() => setIsVisible(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitioning]);
 
-    if (!isVisible && !isTransitioning) return null;
+  if (!isVisible && !isTransitioning) return null;
 
-    // Use the arrays directly (they are already dense enough)
-    const denseLeftClouds = [...leftClouds, ...leftClouds];
-    const denseRightClouds = [...rightClouds, ...rightClouds];
-
-    return (
-        <div className="fixed inset-0 z-[9999] pointer-events-none flex flex-col md:flex-row">
-            {/* Left Curtain */}
-            <motion.div
-                className="relative w-full md:w-1/2 h-1/2 md:h-full"
-            >
-                {denseLeftClouds.map((img, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute"
-                        initial={{ x: "-100%", opacity: 0 }}
-                        animate={{
-                            x: isTransitioning ? "0%" : "-100%",
-                            opacity: 1
-                        }}
-                        transition={{
-                            duration: 1 + Math.random() * 0.8,
-                            delay: (i % 8) * 0.05,
-                            ease: [0.22, 1, 0.36, 1]
-                        }}
-                        style={{
-                            // Distribute vertically with some randomness, ensuring overlap
-                            top: `${(i / denseLeftClouds.length) * 130 - 15}%`,
-                            // Layer them horizontally to create thickness
-                            left: `${(i % 6) * 60 - 80}px`,
-                            width: '180%',
-                            height: 'auto',
-                            zIndex: i
-                        }}
-                    >
-                        <Image
-                            src={`/asset/images/pagetransition/${img}`}
-                            alt="cloud"
-                            width={800}
-                            height={600}
-                            className={`object-contain ${i % 2 === 0 ? 'scale-125' : 'scale-150'}`}
-                            priority
-                        />
-                    </motion.div>
-                ))}
-            </motion.div>
-
-
-            {/* Right Curtain */}
-            <motion.div
-                className="relative w-full md:w-1/2 h-1/2 md:h-full"
-            >
-                {denseRightClouds.map((img, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute right-0"
-                        initial={{ x: "100%", opacity: 0 }}
-                        animate={{
-                            x: isTransitioning ? "0%" : "100%",
-                            opacity: 1
-                        }}
-                        transition={{
-                            duration: 1 + Math.random() * 0.8,
-                            delay: (i % 8) * 0.05,
-                            ease: [0.22, 1, 0.36, 1]
-                        }}
-                        style={{
-                            top: `${(i / denseRightClouds.length) * 130 - 15}%`,
-                            right: `${(i % 6) * 60 - 80}px`,
-                            width: '180%',
-                            height: 'auto',
-                            zIndex: i
-                        }}
-                    >
-                        <Image
-                            src={`/asset/images/pagetransition/${img}`}
-                            alt="cloud"
-                            width={800}
-                            height={600}
-                            className={`object-contain ${i % 2 === 0 ? 'scale-125' : 'scale-150'}`}
-                            priority
-                        />
-                    </motion.div>
-                ))}
-            </motion.div>
-        </div>
-    );
+  return (
+    <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden">
+      {clouds.map((cloud) => (
+        <motion.div
+          key={cloud.id}
+          initial={{
+            x: cloud.initialX,
+            opacity: 0,
+          }}
+          animate={{
+            x: isTransitioning ? "0%" : cloud.initialX,
+            opacity: 1,
+          }}
+          transition={{
+            duration: cloud.duration,
+            ease: [0.22, 1, 0.36, 1],
+            delay: cloud.delay,
+          }}
+          className="absolute w-[600px] h-[400px]"
+          style={{
+            top: cloud.top,
+            left: cloud.left,
+            scale: cloud.scale,
+          }}>
+          <Image
+            src={cloud.src}
+            alt="cloud"
+            fill
+            className="object-contain opacity-100 drop-shadow-2xl"
+          />
+        </motion.div>
+      ))}
+    </div>
+  );
 }

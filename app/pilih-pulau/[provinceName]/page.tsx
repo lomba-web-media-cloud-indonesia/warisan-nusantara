@@ -2,10 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import Link from "next/link";
-import { FiArrowLeft, FiInfo, FiCompass, FiMap } from "react-icons/fi";
+import { FiArrowLeft } from "react-icons/fi";
 import { useEffect, useState } from "react";
-import INDONESIA_DATA from "@/data/Data_Indonesia";
 import { touristSpots } from "@/data/LocTourism";
 import { useChat } from "@/context/ChatContext";
 import { useTransition } from "@/context/TransitionContext";
@@ -21,13 +19,6 @@ interface ProvinceSVGData {
   };
 }
 
-interface ProvinceInfo {
-  tag?: string;
-  tour?: string;
-  culture?: string;
-  [key: string]: any;
-}
-
 export default function PulauDetailPage() {
   const params = useParams();
   const provinceName = decodeURIComponent(params.provinceName as string);
@@ -36,10 +27,6 @@ export default function PulauDetailPage() {
 
   const [svgData, setSvgData] = useState<ProvinceSVGData | null>(null);
   const [hoveredSpot, setHoveredSpot] = useState<string | null>(null);
-
-  const provinceData = (INDONESIA_DATA as Record<string, ProvinceInfo>)[
-    provinceName
-  ];
 
   useEffect(() => {
     // 1. Daftar Provinsi yang WAJIB ambil dari public/asset/pulau
@@ -141,7 +128,7 @@ export default function PulauDetailPage() {
       {/* Header */}
       <header className="z-10 px-8 py-8 flex justify-between items-center">
         <button
-          onClick={() => triggerTransition('/pilih-pulau')}
+          onClick={() => triggerTransition("/pilih-pulau")}
           className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
           <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
           <span className="uppercase tracking-widest text-xs font-bold">
@@ -167,7 +154,8 @@ export default function PulauDetailPage() {
 
           {svgData ? (
             (() => {
-              let dynamicSize = (svgData.bbox.width + svgData.bbox.height) / 40;
+              const dynamicSize =
+                (svgData.bbox.width + svgData.bbox.height) / 40;
 
               const minSize = 5;
               const maxSize = 50;
