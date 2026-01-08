@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { SiGithub, SiInstagram, SiFigma } from "react-icons/si";
-import { FaGlobe, FaGoogleDrive } from "react-icons/fa";
 
 export default function FooterSection() {
   const socialLinks = [
@@ -12,24 +11,14 @@ export default function FooterSection() {
       label: "GitHub",
     },
     {
-      icon: FaGlobe,
-      href: "https://drive.google.com",
-      label: "Google Drive",
-    },
-    {
       icon: SiInstagram,
-      href: "https://instagram.com",
+      href: "https://www.instagram.com/inferno.creativee/",
       label: "Instagram",
     },
     {
       icon: SiFigma,
       href: "https://www.figma.com/design/QBzSVzIn42dayeENfhIGlI/MEDIA-CLOUD-INDONESIA-2025?node-id=0-1&t=m6CEbEKu3CBui5fU-1",
       label: "Figma",
-    },
-    {
-      icon: FaGoogleDrive,
-      href: "https://drive.google.com",
-      label: "Google Drive",
     },
   ];
 
