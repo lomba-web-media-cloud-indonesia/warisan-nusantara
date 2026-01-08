@@ -164,64 +164,89 @@ export default function PulauDetailPage() {
           <div className="absolute w-[300px] h-[300px] md:w-[600px] md:h-[600px] border border-emerald-500/10 rounded-full" />
 
           {svgData ? (
-            <svg
-              viewBox={`${svgData.bbox.x} ${svgData.bbox.y} ${svgData.bbox.width} ${svgData.bbox.height}`}
-              className="w-full h-full drop-shadow-[0_0_30px_rgba(16,185,129,0.4)]"
-              preserveAspectRatio="xMidYMid meet">
-              <motion.path
-                d={svgData.pathData}
-                fill="#34d399"
-                stroke="#10b981"
-                strokeWidth={svgData.bbox.width / 200}
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 1.5 }}
-              />
+            (() => {
+              let dynamicSize = (svgData.bbox.width + svgData.bbox.height) / 40;
 
-              {/* Tourist Spots */}
-              {touristSpots[provinceName]?.map((spot, index) => (
-                <g
-                  key={index}
-                  className="cursor-pointer"
-                  onClick={() =>
-                    openChat(
-                      `Ceritakan secara singkat tentang keunikan dan daya tarik wisata ${spot.name} di ${provinceName}!`
-                    )
-                  }
-                  onMouseEnter={() => setHoveredSpot(spot.name)}
-                  onMouseLeave={() => setHoveredSpot(null)}>
-                  <circle
-                    cx={spot.x}
-                    cy={spot.y}
-                    r={svgData.bbox.width / 50}
-                    fill="transparent"
+              const minSize = 5;
+              const maxSize = 50;
+              const dotSize = Math.max(minSize, Math.min(maxSize, dynamicSize));
+
+              const fontSize = Math.max(2, Math.min(20, dotSize * 0.3));
+
+              return (
+                <svg
+                  viewBox={`${svgData.bbox.x} ${svgData.bbox.y} ${svgData.bbox.width} ${svgData.bbox.height}`}
+                  className="w-full h-full drop-shadow-[0_0_30px_rgba(16,185,129,0.4)]"
+                  preserveAspectRatio="xMidYMid meet">
+                  <motion.path
+                    d={svgData.pathData}
+                    fill="#34d399"
+                    stroke="#10b981"
+                    strokeWidth={svgData.bbox.width / 200}
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.5 }}
                   />
-                  <motion.image
-                    href="/asset/images/dot.png"
-                    x={spot.x - svgData.bbox.width / 100}
-                    y={spot.y - svgData.bbox.width / 100}
-                    width={svgData.bbox.width / 30}
-                    height={svgData.bbox.width / 30}
-                  />
-                  {hoveredSpot === spot.name && (
-                    <text
-                      x={spot.x}
-                      y={
-                        spot.y - svgData.bbox.y < svgData.bbox.height * 0.15
-                          ? spot.y + svgData.bbox.height / 15
-                          : spot.y - svgData.bbox.height / 20
+
+                  {touristSpots[provinceName]?.map((spot, index) => (
+                    <g
+                      key={index}
+                      className="cursor-pointer"
+                      onClick={() =>
+                        openChat(
+                          `Ceritakan secara singkat tentang keunikan dan daya tarik wisata ${spot.name} di ${provinceName}!`
+                        )
                       }
-                      textAnchor="middle"
-                      fill="#fbbf24"
-                      fontWeight="bold"
-                      fontSize={svgData.bbox.width / 50}
-                      style={{ textShadow: "2px 2px 4px black" }}>
-                      {spot.name}
-                    </text>
-                  )}
-                </g>
-              ))}
-            </svg>
+                      onMouseEnter={() => setHoveredSpot(spot.name)}
+                      onMouseLeave={() => setHoveredSpot(null)}>
+                      {/* Area Hitbox Hover (Lingkaran transparan yang lebih besar) */}
+                      <circle
+                        cx={spot.x}
+                        cy={spot.y}
+                        r={dotSize}
+                        fill="transparent"
+                      />
+
+                      {/* Gambar Dot.png */}
+                      <motion.image
+                        href="/asset/images/dot.png"
+                        x={spot.x - dotSize / 2}
+                        y={spot.y - dotSize / 2}
+                        width={dotSize}
+                        height={dotSize}
+                        animate={{
+                          scale: hoveredSpot === spot.name ? 1.3 : 1,
+                          opacity: [0.7, 1, 0.7],
+                        }}
+                        transition={{
+                          opacity: { repeat: Infinity, duration: 2 },
+                        }}
+                      />
+
+                      {hoveredSpot === spot.name && (
+                        <text
+                          x={spot.x}
+                          y={
+                            spot.y - svgData.bbox.y < svgData.bbox.height * 0.15
+                              ? spot.y + dotSize * 1.5
+                              : spot.y - dotSize
+                          }
+                          textAnchor="middle"
+                          fill="#fbbf24"
+                          fontWeight="bold"
+                          fontSize={fontSize}
+                          style={{
+                            textShadow: "2px 2px 4px black",
+                            pointerEvents: "none",
+                          }}>
+                          {spot.name}
+                        </text>
+                      )}
+                    </g>
+                  ))}
+                </svg>
+              );
+            })()
           ) : (
             <div className="text-zinc-500 animate-pulse">
               Memuat Peta {provinceName}...
