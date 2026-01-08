@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import INDONESIA_DATA from "@/data/Data_Indonesia";
 import { touristSpots } from "@/data/LocTourism";
 import { useChat } from "@/context/ChatContext";
+import { useTransition } from "@/context/TransitionContext";
 
 interface ProvinceSVGData {
   name: string;
@@ -31,6 +32,7 @@ export default function PulauDetailPage() {
   const params = useParams();
   const provinceName = decodeURIComponent(params.provinceName as string);
   const { openChat } = useChat();
+  const { triggerTransition } = useTransition();
 
   const [svgData, setSvgData] = useState<ProvinceSVGData | null>(null);
   const [hoveredSpot, setHoveredSpot] = useState<string | null>(null);
@@ -138,19 +140,19 @@ export default function PulauDetailPage() {
 
       {/* Header */}
       <header className="z-10 px-8 py-8 flex justify-between items-center">
-        <Link
-          href="/pilih-pulau"
+        <button
+          onClick={() => triggerTransition('/pilih-pulau')}
           className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
           <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
           <span className="uppercase tracking-widest text-xs font-bold">
             Kembali ke Peta
           </span>
-        </Link>
+        </button>
         <div className="flex flex-col items-end">
           <span className="text-[10px] uppercase tracking-widest text-emerald-500 font-bold">
             Wilayah Terpilih
           </span>
-          <h1 className="text-3xl font-black uppercase tracking-tighter">
+          <h1 className="text-xl sm:text-3xl md:text-5xl font-black uppercase tracking-tighter text-right leading-none">
             {provinceName}
           </h1>
         </div>

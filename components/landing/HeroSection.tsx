@@ -264,7 +264,7 @@ const CenterImage = () => {
       }}>
       <ShinyText
         text="WARISAN NUSANTARA"
-        className="text-4xl font-black tracking-widest uppercase"
+        className="text-xl sm:text-3xl md:text-5xl font-black tracking-[0.2em] md:tracking-widest uppercase text-center max-w-[50vw] leading-tight"
       />
     </motion.div>
   );

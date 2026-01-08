@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { FiArrowLeft } from "react-icons/fi";
 import IndonesiaMap from "@react-map/indonesia";
 import INDONESIA_DATA from "@/data/Data_Indonesia";
+import { useTransition } from "@/context/TransitionContext";
 
 // --- 1. Komponen Tooltip Terpisah (TSX) ---
 const FloatingTooltip = ({
@@ -142,39 +143,8 @@ const CloudOverlay = ({ isVisible }: { isVisible: boolean }) => (
 // --- 3. Komponen Utama ---
 export default function IslandMapPage() {
   const router = useRouter();
-  const [hoveredProvince, setHoveredProvince] = useState<string>("");
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [zoomState, setZoomState] = useState({ scale: 1, x: 0, y: 0 });
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleGlobalMouseMove = (e: MouseEvent) =>
-      setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener("mousemove", handleGlobalMouseMove);
-    return () => window.removeEventListener("mousemove", handleGlobalMouseMove);
-  }, []);
-
-  useEffect(() => {
-    const container = mapContainerRef.current;
-    if (!container) return;
-    const paths = container.querySelectorAll("path");
-    const handleMouseEnter = (e: Event) => {
-      if (isTransitioning) return;
-      const id = (e.target as SVGPathElement).getAttribute("id");
-      if (id) setHoveredProvince(id.split("-")[0]);
-    };
-    const handleMouseLeave = () => setHoveredProvince("");
-    paths.forEach((path) => {
-      path.addEventListener("mouseenter", handleMouseEnter);
-      path.addEventListener("mouseleave", handleMouseLeave);
-    });
-    return () =>
-      paths.forEach((path) => {
-        path.removeEventListener("mouseenter", handleMouseEnter);
-        path.removeEventListener("mouseleave", handleMouseLeave);
-      });
-  }, [isTransitioning]);
+  const { triggerTransition } = useTransition();
+  // ...
 
   const handleProvinceClick = (area: string) => {
     if (isTransitioning) return;
@@ -184,6 +154,7 @@ export default function IslandMapPage() {
     ) as SVGPathElement;
 
     if (path) {
+      // ... existing SVG data extraction code ...
       // Extract SVG path data
       const pathData = path.getAttribute("d");
       const bbox = path.getBBox();
@@ -215,10 +186,15 @@ export default function IslandMapPage() {
         });
       }
     }
-    setTimeout(
-      () => router.push(`/pilih-pulau/${encodeURIComponent(area)}`),
-      2200
-    );
+
+    // Use triggerTransition instead of router.push with delay
+    // Note: local setIsTransitioning controls zoom, triggerTransition controls clouds.
+    // We can sync them or just fire triggerTransition. 
+    // Since triggerTransition takes 1.5s to close clouds, we can fire it nearby.
+
+    setTimeout(() => {
+      triggerTransition(`/pilih-pulau/${encodeURIComponent(area)}`);
+    }, 1000); // Wait for zoom to start before triggering clouds
   };
 
   return (
@@ -253,10 +229,12 @@ export default function IslandMapPage() {
         </Link>
       </div>
 
-      <div className="z-10 w-full h-screen flex flex-col items-center pt-24 pb-8">
+      {/* Container with overflow for scrolling/panning on mobile */}
+      <div className="z-10 w-full h-screen flex flex-col items-start md:items-center pt-24 pb-8 overflow-auto touch-pan-x touch-pan-y no-scrollbar">
+        {/* Wrapper with fixed minimum width to ensure map is "large" and pannable */}
         <motion.div
           ref={mapContainerRef}
-          className="relative w-full flex-1 flex items-center justify-center cursor-crosshair"
+          className="relative min-w-[200vw] md:min-w-0 w-full flex-1 flex items-center justify-center cursor-crosshair"
           animate={{ scale: zoomState.scale, x: zoomState.x, y: zoomState.y }}
           transition={{
             duration: isTransitioning ? 2.5 : 1,

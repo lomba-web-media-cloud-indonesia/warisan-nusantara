@@ -22,6 +22,9 @@ export const metadata: Metadata = {
 import { ChatProvider } from "@/context/ChatContext";
 import ModalComponent from "@/components/modal/ModalComponent";
 
+import { TransitionProvider } from "@/context/TransitionContext";
+import CloudTransition from "@/components/ui/CloudTransition";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,10 +35,13 @@ export default function RootLayout({
       <body
         className={`${kalnia.variable} ${poppins.variable} antialiased`}
       >
-        <ChatProvider>
-          {children}
-          <ModalComponent />
-        </ChatProvider>
+        <TransitionProvider>
+          <ChatProvider>
+            <CloudTransition />
+            {children}
+            <ModalComponent />
+          </ChatProvider>
+        </TransitionProvider>
       </body>
     </html>
   );
