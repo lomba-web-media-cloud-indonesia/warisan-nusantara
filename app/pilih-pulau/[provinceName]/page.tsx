@@ -185,7 +185,11 @@ export default function PulauDetailPage() {
                 <g
                   key={index}
                   className="cursor-pointer"
-                  onClick={() => openChat(`Ceritakan secara singkat tentang keunikan dan daya tarik wisata ${spot.name} di ${provinceName}!`)}
+                  onClick={() =>
+                    openChat(
+                      `Ceritakan secara singkat tentang keunikan dan daya tarik wisata ${spot.name} di ${provinceName}!`
+                    )
+                  }
                   onMouseEnter={() => setHoveredSpot(spot.name)}
                   onMouseLeave={() => setHoveredSpot(null)}>
                   <circle
@@ -194,13 +198,12 @@ export default function PulauDetailPage() {
                     r={svgData.bbox.width / 50}
                     fill="transparent"
                   />
-                  <motion.circle
-                    cx={spot.x}
-                    cy={spot.y}
-                    r={svgData.bbox.width / 100}
-                    fill="#fbbf24"
-                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
+                  <motion.image
+                    href="/asset/images/dot.png"
+                    x={spot.x - svgData.bbox.width / 100}
+                    y={spot.y - svgData.bbox.width / 100}
+                    width={svgData.bbox.width / 30}
+                    height={svgData.bbox.width / 30}
                   />
                   {hoveredSpot === spot.name && (
                     <text
