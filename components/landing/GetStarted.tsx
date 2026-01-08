@@ -1,67 +1,57 @@
 "use client";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { FiArrowRight } from 'react-icons/fi';
+import { useTransition } from '@/context/TransitionContext';
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import Link from "next/link";
-import { useRef } from "react";
-import { FiArrowRight } from "react-icons/fi";
-
-export default function GetStarted() {
-    const containerRef = useRef(null);
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start end", "end start"],
-    });
-
-    const y = useTransform(scrollYProgress, [0, 1], [-50, 50]);
+const GetStarted = () => {
+    const { triggerTransition } = useTransition();
 
     return (
-        <section
-            ref={containerRef}
-            className="relative w-full h-[60vh] overflow-hidden flex items-center justify-center">
-            {/* Background Image with Parallax */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                viewport={{ once: true }}
-                className="absolute inset-0 z-0">
-                <div
-                    className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110"
-                    style={{
-                        backgroundImage:
-                            "url('https://images.unsplash.com/photo-1620549146396-9024d914cd99?q=80&w=871&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
-                    }}
-                />
-                <div className="absolute inset-0 bg-black/60" /> {/* Overlay */}
-            </motion.div>
+        <section className="relative w-full h-[60vh] flex items-center justify-center overflow-hidden bg-black">
+            {/* Background Image */}
+            <div
+                className="absolute inset-0 z-0 bg-cover bg-center opacity-60"
+                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1620549146396-9024d914cd99?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Ym9yb2J1ZHVyfGVufDB8fDB8fHww')" }}
+            />
 
-            {/* Content */}
-            <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                viewport={{ once: true }}
-                className="relative z-10 container mx-auto px-6 text-center">
-                <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6">
-                    Ayo Jelajahi!
-                </h2>
-                <p className="text-zinc-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-light">
-                    Temukan keajaiban budaya, alam, dan sejarah Nusantara yang tak
-                    ternilai harganya. Mulai perjalananmu sekarang.
-                </p>
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
 
-                <Link href={"/pilih-pulau"}>
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[var(--secondary)] text-white font-bold text-lg uppercase tracking-wide overflow-hidden transition-colors border border-white">
-                        <span>Mulai Sekarang</span>
-                        <motion.span initial={{ x: 0 }} whileHover={{ x: 5 }}>
-                            <FiArrowRight />
-                        </motion.span>
-                    </motion.button>
-                </Link>
-            </motion.div>
+            <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
+                <motion.h2
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="text-3xl md:text-5xl font-black text-white mb-6 uppercase tracking-wider"
+                >
+                    Mulai Petualanganmu
+                </motion.h2>
+
+                <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="text-zinc-300 text-sm md:text-lg mb-10 max-w-2xl mx-auto leading-relaxed"
+                >
+                    Temukan keajaiban yang tersembunyi di setiap sudut Nusantara. Dari Sabang sampai Merauke, cerita nenek moyang menantimu.
+                </motion.p>
+
+                <motion.button
+                    onClick={() => triggerTransition('/pilih-pulau')}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="group relative inline-flex items-center gap-3 px-8 py-4 bg-green-600 text-black font-bold text-lg rounded-full overflow-hidden shadow-[0_0_30px_rgba(198,166,100,0.4)] hover:shadow-[0_0_50px_rgba(198,166,100,0.6)] transition-all"
+                >
+                    <span className="relative z-10">Ayo Jelajahi</span>
+                    <FiArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                </motion.button>
+            </div>
         </section>
     );
-}
+};
+
+export default GetStarted;

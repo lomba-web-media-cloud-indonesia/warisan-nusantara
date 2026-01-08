@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
           "HTTP-Referer": "http://localhost:3000", // Required by OpenRouter for free tier sometimes
           "X-Title": "Warisan Nusantara",
