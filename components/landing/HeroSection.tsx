@@ -105,11 +105,9 @@ const Hero = () => {
       <div
         className="
   absolute bottom-0 left-0 right-0 h-[500px]
-  bg-gradient-to-t 
+  bg-linear-to-t 
   from-zinc-900 
-  via-zinc-900/90 
   via-zinc-900/50 
-  via-zinc-900/20 
   to-transparent
 "
       />
@@ -133,7 +131,7 @@ const ShinyText = ({
   const [isPaused, setIsPaused] = useState(false);
   const progress = useMotionValue(0);
   const elapsedRef = useRef(0);
-  const lastTimeRef = useRef(null);
+  const lastTimeRef = useRef<number | null>(null);
   const directionRef = useRef(direction === "left" ? 1 : -1);
 
   const animationDuration = speed * 1000;

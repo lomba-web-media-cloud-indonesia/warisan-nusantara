@@ -57,7 +57,7 @@ export default function CloudTransition() {
   if (!isVisible && !isTransitioning) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden">
+    <div className="fixed inset-0 z-9999 pointer-events-none overflow-hidden">
       {clouds.map((cloud) => (
         <motion.div
           key={cloud.id}
