@@ -1,36 +1,21 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Warisan Nusantara
 
-## Getting Started
+**Warisan Nusantara** adalah platform web interaktif yang dirancang untuk memperkenalkan dan mempromosikan kekayaan budaya serta destinasi wisata Indonesia kepada dunia. Melalui antarmuka yang modern dan imersif, pengguna dapat menjelajahi keindahan nusantara dari sabang sampai merauke.
 
-First, run the development server:
+## 🌟 Fitur Utama
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Peta Interaktif Nusantara**: Eksplorasi visual berbasis peta SVG interaktif yang detail, mencakup pulau-pulau besar dan provinsi di Indonesia.
+- **Informasi Budaya & Wisata**: Halaman detail untuk setiap provinsi yang menyajikan informasi tentang destinasi wisata unggulan, kekayaan budaya, dan tagline unik daerah.
+- **Asisten Virtual AI**: Fitur chat cerdas yang terintegrasi dengan AI (via OpenRouter) untuk menjawab pertanyaan pengguna seputar pariwisata dan sejarah Indonesia secara real-time.
+- **Visual Imersif**: Dibangun dengan desain modern menggunakan efek _glassmorphism_, animasi halus (_Framer Motion_), dan tema gelap yang elegan.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Teknologi
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Proyek ini dibangun menggunakan teknologi web modern:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Bahasa**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Animasi**: [Framer Motion](https://www.framer.com/motion/)
+- **Icons**: React Icons
+- **AI Integration**: OpenRouter API
