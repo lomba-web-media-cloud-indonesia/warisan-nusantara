@@ -156,7 +156,7 @@ export default function ModalComponent() {
               <div className="absolute inset-0 z-0 bg-[url('/asset/images/bg-modal.png')] bg-cover bg-center bg-no-repeat opacity-40 mix-blend-overlay"></div>
 
               {/* Messages Area */}
-              <div className="relative z-10 flex-1 overflow-y-auto p-5 scrollbar-hide space-y-4 pb-36 pt-8">
+              <div className="relative z-10 flex-1 overflow-y-auto mt-15 p-5 scrollbar-hide space-y-4 pb-36 pt-8">
                 {messages.length === 0 && (
                   <div className="flex flex-col items-center justify-center h-[60%] text-center text-white/80 p-6">
                     <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm">
