@@ -15,7 +15,7 @@ const GetStarted = () => {
                 style={{ backgroundImage: "url('https://images.unsplash.com/photo-1620549146396-9024d914cd99?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Ym9yb2J1ZHVyfGVufDB8fDB8fHww')" }}
             />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
+            <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent z-10" />
 
             <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
                 <motion.h2
