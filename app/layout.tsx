@@ -16,7 +16,11 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "Warisan Nusantara",
-  description: "Eksplorasi budaya dan wisata Indonesia melalui peta interaktif dan chatbot edukatif.",
+  description:
+    "Eksplorasi budaya dan wisata Indonesia melalui peta interaktif dan chatbot edukatif.",
+  icons: {
+    icon: "/asset/images/logo.png ",
+  },
 };
 
 import { ChatProvider } from "@/context/ChatContext";
@@ -32,9 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${kalnia.variable} ${poppins.variable} antialiased`}
-      >
+      <body className={`${kalnia.variable} ${poppins.variable} antialiased`}>
         <TransitionProvider>
           <ChatProvider>
             <CloudTransition />
