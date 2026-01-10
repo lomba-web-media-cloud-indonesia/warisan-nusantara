@@ -34,7 +34,7 @@ export default function CloudTransition() {
             const isLeft = i % 2 === 0;
             return {
               id: i,
-              src: "/asset/images/pagetransition/image 42.png",
+              src: "/asset/images/pagetransition/image 42.webp",
               top: `${Math.random() * 160 - 30}%`,
               left: isLeft
                 ? `${Math.random() * 90 - 20}%`
